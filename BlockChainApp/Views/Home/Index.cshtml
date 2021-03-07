@@ -1,8 +1,102 @@
 ﻿@{
     ViewData["Title"] = "Home Page";
 }
+<style>
+    table {
+        width: 100%;
+        border: dotted
+    }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+    tr {
+        border: dotted
+    }
+
+    td {
+        word-break: break-word;
+        white-space: pre-wrap;
+    }
+</style>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $("#bitCoinBtn").click(function () {
+            getTickerInfo();
+        });
+    });
+
+    function getTickerInfo() {
+        $.ajax({
+            type: 'GET',
+            url: '/Home/GetTickerInfo',
+            success: function (result) {
+                var table = document.getElementById('bitCoinTable');
+                var currencyTypes = $("#currencytype");
+                var content = '<tr><th>Currency</th><th>15m</th><th>Last</th><th>Buy</th><th>Sell</th><th>Symbol</th></tr>';
+                currencyTypes.empty();
+                for (var i = 0; i < result.length; i++) {
+                    content += '<tr><td>' + result[i].currency + '</td><td>' + result[i].periodSetting + '</td><td>' + result[i].last + '</td><td>' + result[i].buy + '</td><td>' + result[i].sell + '</td><td>' + result[i].symbol + '</td></tr>'
+                    var option = $("<option />");
+                    option.html(result[i].currency);
+                    option.val(result[i].currency);
+                    currencyTypes.append(option);
+                }
+                table.innerHTML = content;
+            },
+            complete: function (xhr, status) {
+                setTimeout(function () {
+                    getTickerInfo();
+                }, 3000);
+            }
+        });
+    }
+
+    function convertCurrency() {
+        var currencyType = document.getElementById('currencytype').value;
+        var amount = document.getElementById('currencyValue').value;
+        var convertedValue = document.getElementById('convertedValue');
+        convertedValue.value = '';
+        $.ajax({
+            type: 'GET',
+            url: '/Home/GetCurrencyConversion',
+            data: { currency: currencyType, value: amount },
+            success: function (result) {
+                convertedValue.value = result;
+            }
+        });
+    }
+</script>
+<div>
+    <br />
+    <form id="currencyConversionForm" onsubmit="convertCurrency();return false">
+        <table style="border:none;">
+            <tr style="border:none">
+                <td>
+                    <label style="font-weight: bold;" for="currencytype">Currency Type</label>
+                    <select style="width:120px" name="currencytype" id="currencytype"> </select>
+                </td>
+                <td>
+                    <label style="font-weight: bold;" for="currencyValue">Amount</label>
+                    <input name="currencyValue" id="currencyValue" type="number" min="1" max="999999" step=".01" required />
+                </td>
+                <td>
+                    <label></label>
+                    <button>Convert</button>
+                </td>
+                <td>
+                    <label style="font-weight: bold;" for="convertedValue">Result</label>
+                    <input name="convertedValue" id="convertedValue" type="number" readonly />
+                </td>
+            </tr>
+            <tr style="border:none">
+                <td>
+                    <button id="bitCoinBtn" onclick="return false;" style="background-color:darkgray;">Show BitCoin Exchange</button>
+                </td>
+            </tr>
+        </table>
+
+    </form>
+
+    <br />
+    <table id="bitCoinTable" style="border:solid;background-color:darkseagreen">
+    </table>
 </div>

@@ -1,5 +1,3 @@
-using System;
-
 namespace BlockChainApp.Models
 {
     public class ErrorViewModel

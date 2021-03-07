@@ -5,3 +5,5 @@
 /.vs
 /BlockChainApp/bin
 /BlockChainApp/obj
+/BlockChainAppTests/bin
+/BlockChainAppTests/obj
